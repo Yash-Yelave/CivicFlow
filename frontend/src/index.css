@@ -1,10 +1,34 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-workspace: #F9FAFB;
+  --color-workspace-accent: #F3F4F6;
+  --color-slate-850: #1e293b;
+  --color-slate-900: #0f172a;
+  
+  --color-status-resolved-bg: #ecfdf5;
+  --color-status-resolved-text: #065f46;
+  --color-status-pending-bg: #fffbeb;
+  --color-status-pending-text: #92400e;
+  --color-status-critical-bg: #fef2f2;
+  --color-status-critical-text: #991b1b;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --shadow-micro: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
 
 @layer base {
   body {
-    @apply bg-workspace text-slate-800 font-sans antialiased m-0 p-0 overflow-x-hidden;
+    background-color: var(--color-workspace);
+    color: var(--color-slate-800);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
   }
 }
 
@@ -29,11 +53,15 @@
 
 /* Leaflet Map Overrides for Minimalist Look */
 .leaflet-container {
-  font-family: 'Inter', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  @apply bg-white shadow-elevated rounded-xl border border-gray-100;
+  background-color: white;
+  box-shadow: var(--shadow-elevated);
+  border-radius: 0.75rem;
+  border: 1px solid #f3f4f6;
 }
 .leaflet-popup-content {
-  @apply m-0 p-0;
+  margin: 0;
+  padding: 0;
 }
