@@ -37,7 +37,7 @@ def _init_gemini():
 _init_gemini()
 
 # Define the models to be used
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 
 # ---------------------------------------------------------------------------
