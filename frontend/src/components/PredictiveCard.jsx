@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldAlert } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldAlert, Check, Loader2 } from 'lucide-react';
 
 const PredictiveCard = ({ cluster }) => {
+  const [status, setStatus] = useState('idle'); // 'idle' | 'approving' | 'approved'
+
+  const handleApprove = () => {
+    if (status !== 'idle') return;
+    setStatus('approving');
+    setTimeout(() => {
+      setStatus('approved');
+    }, 1200);
+  };
+
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
@@ -36,12 +46,36 @@ const PredictiveCard = ({ cluster }) => {
           Impact: <span className="font-medium text-slate-700">{cluster.impact}</span>
         </div>
         <motion.button
-          whileHover={{ x: 2 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors"
+          whileHover={status === 'idle' ? { x: 2 } : {}}
+          whileTap={status === 'idle' ? { scale: 0.98 } : {}}
+          onClick={handleApprove}
+          disabled={status !== 'idle'}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+            status === 'idle'
+              ? 'bg-slate-900 text-white hover:bg-slate-800'
+              : status === 'approving'
+              ? 'bg-indigo-50 text-indigo-600 border border-indigo-200 cursor-not-allowed'
+              : 'bg-emerald-500 text-white cursor-default'
+          }`}
         >
-          Approve Prevention Order
-          <ArrowRight size={16} />
+          {status === 'idle' && (
+            <>
+              Approve Prevention Order
+              <ArrowRight size={16} />
+            </>
+          )}
+          {status === 'approving' && (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Approving...
+            </>
+          )}
+          {status === 'approved' && (
+            <>
+              <Check size={16} />
+              Approved
+            </>
+          )}
         </motion.button>
       </div>
     </motion.div>
