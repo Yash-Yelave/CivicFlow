@@ -96,11 +96,6 @@ export const submitReport = async ({ imageFile, latitude, longitude, description
 
   try {
     const response = await apiClient.post('/api/report', formData, {
-      headers: {
-        // Axios will automatically set the correct multipart/form-data boundary
-        // when we do NOT override Content-Type here. This is critical.
-        'Content-Type': 'multipart/form-data',
-      },
       // Track upload progress for a loading indicator (optional)
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round(
