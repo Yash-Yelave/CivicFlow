@@ -8,12 +8,12 @@ def test_gemini_connection():
     
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        print("❌ ERROR: GEMINI_API_KEY not found in .env file.")
+        print("ERROR: GEMINI_API_KEY not found in .env file.")
         return
         
     # Mask key for secure logging
     masked_key = f"{api_key[:6]}...{api_key[-4:]}"
-    print(f"✅ Found GEMINI_API_KEY: {masked_key}")
+    print(f"Found GEMINI_API_KEY: {masked_key}")
     
     print("Initializing Gemini SDK...")
     genai.configure(api_key=api_key)
@@ -26,10 +26,10 @@ def test_gemini_connection():
         print("\n--- GEMINI RESPONSE ---")
         print(response.text.strip())
         print("-----------------------")
-        print("🎉 SUCCESS: Gemini API is fully operational!")
+        print("SUCCESS: Gemini API is fully operational!")
         
     except Exception as e:
-        print("\n❌ FAILURE: Gemini API call failed.")
+        print("\nFAILURE: Gemini API call failed.")
         print(f"Error details: {str(e)}")
 
 if __name__ == "__main__":
