@@ -1,31 +1,25 @@
 """
 CivicFlow Backend — Firebase Service
 =======================================
-Handles all Firebase interactions:
-  - Admin SDK initialization (Firestore + Storage)
-  - Image upload to Firebase Storage
-  - Firestore CRUD operations for the 'tickets' collection
+Handles all Firebase interactions (Firestore ONLY).
+Image storage via Firebase Storage has been removed in favor of Base64 strings.
 
 This module is imported as a singleton dependency by the API routes.
 """
 
 import os
-import uuid
-import json
 import logging
 from datetime import datetime, timezone
-from typing import Optional
 
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
-from google.cloud.firestore_v1 import FieldFilter
+from firebase_admin import credentials, firestore
 
 logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
 # Singleton: Initialize Firebase Admin SDK exactly once at module load.
-# The credential file path and storage bucket are read from environment vars.
+# The credential file path is read from environment vars.
 # ---------------------------------------------------------------------------
 
 def _initialize_firebase() -> None:
@@ -34,14 +28,13 @@ def _initialize_firebase() -> None:
     Safe to call multiple times — skips re-initialization if already done.
     """
     if firebase_admin._apps:
-        # Already initialized (e.g., hot-reload in dev mode)
+        # Already initialized
         return
 
     service_account_path = os.getenv(
         "FIREBASE_SERVICE_ACCOUNT_KEY",
         "app/core/serviceAccountKey.json"  # Default path relative to backend/
     )
-    storage_bucket = os.getenv("FIREBASE_STORAGE_BUCKET")
 
     if not os.path.exists(service_account_path):
         raise FileNotFoundError(
@@ -50,59 +43,18 @@ def _initialize_firebase() -> None:
         )
 
     cred = credentials.Certificate(service_account_path)
-    firebase_admin.initialize_app(cred, {
-        "storageBucket": storage_bucket
-    })
-    logger.info("✅ Firebase Admin SDK initialized successfully.")
+    firebase_admin.initialize_app(cred)
+    logger.info("✅ Firebase Admin SDK (Firestore ONLY) initialized successfully.")
 
 
 # Run initialization when this module is first imported
 _initialize_firebase()
 
-# Module-level references to Firestore and Storage clients
+# Module-level reference to Firestore client
 db = firestore.client()
-bucket = storage.bucket()
 
 # The Firestore collection where all triage tickets are stored
 TICKETS_COLLECTION = "tickets"
-
-
-# ---------------------------------------------------------------------------
-# Firebase Storage — Image Upload
-# ---------------------------------------------------------------------------
-
-async def upload_image_to_storage(
-    image_bytes: bytes,
-    original_filename: str,
-    content_type: str
-) -> str:
-    """
-    Uploads an image to Firebase Storage and returns a public download URL.
-
-    Args:
-        image_bytes: Raw bytes of the uploaded image file.
-        original_filename: Original filename from the upload (used for extension).
-        content_type: MIME type (e.g., 'image/jpeg').
-
-    Returns:
-        A publicly accessible URL string for the uploaded image.
-    """
-    # Generate a unique filename to avoid collisions in the storage bucket
-    file_extension = original_filename.rsplit(".", 1)[-1] if "." in original_filename else "jpg"
-    unique_filename = f"issue_images/{uuid.uuid4()}.{file_extension}"
-
-    # Create a blob reference in the Firebase Storage bucket
-    blob = bucket.blob(unique_filename)
-
-    # Upload the raw bytes
-    blob.upload_from_string(image_bytes, content_type=content_type)
-
-    # Make the file publicly readable so the frontend and Gemini can access it
-    blob.make_public()
-
-    public_url = blob.public_url
-    logger.info(f"📸 Image uploaded to Firebase Storage: {public_url}")
-    return public_url
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +66,7 @@ def create_ticket(ticket_data: dict) -> tuple[str, dict]:
     Saves a compiled triage ticket document to the Firestore 'tickets' collection.
 
     Args:
-        ticket_data: A dictionary containing all ticket fields (location, agents, etc.)
+        ticket_data: A dictionary containing all ticket fields (including Base64 image).
 
     Returns:
         A tuple of (document_id, ticket_data_with_id).

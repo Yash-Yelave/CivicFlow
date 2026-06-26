@@ -48,21 +48,20 @@ GEMINI_MODEL = "gemini-1.5-flash"
 # AGENT 1 — The Assessor (Vision AI)
 # ---------------------------------------------------------------------------
 
-async def run_agent1_assessor(image_bytes: bytes, content_type: str) -> Agent1Assessment:
+async def run_agent1_assessor(image_base64_uri: str) -> Agent1Assessment:
     """
-    Agent 1: Passes the raw image bytes to Gemini Vision for infrastructure analysis.
+    Agent 1: Passes the Base64 image payload to Gemini Vision for infrastructure analysis.
 
     The agent is instructed to return strict JSON matching the Agent1Assessment schema.
     `response_mime_type="application/json"` ensures Gemini won't wrap output in markdown.
 
     Args:
-        image_bytes: Raw bytes of the uploaded infrastructure image.
-        content_type: MIME type of the image (e.g., 'image/jpeg', 'image/png').
+        image_base64_uri: The Base64 data URI string (e.g., 'data:image/jpeg;base64,...').
 
     Returns:
         A validated Agent1Assessment Pydantic model instance.
     """
-    logger.info("🤖 Agent 1 (Assessor) starting visual analysis...")
+    logger.info("🤖 Agent 1 (Assessor) starting visual analysis from Base64 string...")
 
     model = genai.GenerativeModel(
         model_name=GEMINI_MODEL,
@@ -90,18 +89,27 @@ async def run_agent1_assessor(image_bytes: bytes, content_type: str) -> Agent1As
         )
     )
 
+    # Extract mime type and raw base64 data from the URI
+    # format: "data:image/jpeg;base64,xxxxxxx"
+    header, raw_b64 = image_base64_uri.split(",", 1)
+    mime_type = header.split(":")[1].split(";")[0]
+
     # Build the multi-modal prompt: image data + text instruction
-    image_part = {"mime_type": content_type, "data": image_bytes}
+    image_part = {"mime_type": mime_type, "data": raw_b64}
     text_part = (
         "Analyze this image of a city infrastructure issue. "
         "Identify what the problem is, classify it into one of these categories: "
         "[Pothole, Streetlight, Water Leak, Structural Damage, Sewage Overflow, "
         "Road Crack, Fallen Tree, Flooding, Graffiti, Other]. "
         "Assign a severity_level from 1 to 5. "
-        "Return your assessment strictly as JSON."
+        "Write a 2-3 sentence visual summary."
     )
 
-    response = model.generate_content([image_part, text_part])
+    try:
+        response = await model.generate_content_async([image_part, text_part])
+    except Exception as e:
+        logger.error(f"Gemini API error in Agent 1: {e}")
+        raise
 
     # Parse and validate the JSON response against our Pydantic schema
     raw_data = json.loads(response.text)

@@ -16,7 +16,7 @@ from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from app.services import firebase_service, gemini_service
+from app.services import firebase_service, gemini_service, image_service
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ async def submit_report(
     """
     Multi-Agent Pipeline Execution:
 
-    Step A → Upload image to Firebase Storage → get public URL
+    Step A → Compress image and convert to Base64 (Zero-Cost Architecture)
     Step B → Agent 1 (Assessor): Visual classification via Gemini Vision
     Step C → Agent 2 (Router): Department routing based on Agent 1 output
     Step D → Compile full ticket document
@@ -57,32 +57,26 @@ async def submit_report(
     logger.info(f"📥 New report received at ({latitude}, {longitude})")
 
     # ------------------------------------------------------------------
-    # Step A: Read image bytes and upload to Firebase Storage
+    # Step A: Read image bytes and compress to Base64
     # ------------------------------------------------------------------
     try:
         image_bytes = await image.read()
-        content_type = image.content_type or "image/jpeg"
-
-        image_url = await firebase_service.upload_image_to_storage(
-            image_bytes=image_bytes,
-            original_filename=image.filename or "upload.jpg",
-            content_type=content_type
-        )
+        
+        image_url = image_service.compress_to_base64(image_bytes)
     except Exception as e:
-        logger.error(f"❌ Firebase Storage upload failed: {e}")
+        logger.error(f"❌ Image compression failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Image upload failed: {str(e)}"
+            detail=f"Image processing failed: {str(e)}"
         )
 
     # ------------------------------------------------------------------
     # Step B: Agent 1 — The Assessor (Vision AI via Gemini Flash)
-    # Sends raw image bytes + MIME type for visual analysis
+    # Sends Base64 string for visual analysis
     # ------------------------------------------------------------------
     try:
         agent1_result = await gemini_service.run_agent1_assessor(
-            image_bytes=image_bytes,
-            content_type=content_type
+            image_base64_uri=image_url
         )
     except Exception as e:
         logger.error(f"❌ Agent 1 (Assessor) failed: {e}")
