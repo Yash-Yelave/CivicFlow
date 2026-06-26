@@ -40,8 +40,8 @@ def _initialize_gemini() -> None:
 
 _initialize_gemini()
 
-# Using gemini-1.5-flash for fast, cost-effective multi-modal inference
-GEMINI_MODEL = "gemini-1.5-flash"
+# Using gemini-2.5-flash for fast, cost-effective multi-modal inference
+GEMINI_MODEL = "gemini-2.5-flash"
 
 
 # ---------------------------------------------------------------------------
