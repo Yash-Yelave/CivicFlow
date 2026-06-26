@@ -1,15 +1,15 @@
-"""
-CivicFlow Frontend — API Service Layer (api.js)
-================================================
-Centralized Axios client for all CivicFlow backend API calls.
-
-All functions are async and return the `data` payload directly.
-Each function includes try/catch so calling components can manage
-their own loading/error UI states cleanly.
-
-Usage in a React component:
-  import { getTickets, submitReport, verifyTicket, getAnalytics } from '../services/api';
-*/
+/**
+ * CivicFlow Frontend — API Service Layer (api.js)
+ * ================================================
+ * Centralized Axios client for all CivicFlow backend API calls.
+ *
+ * All functions are async and return the `data` payload directly.
+ * Each function includes try/catch so calling components can manage
+ * their own loading/error UI states cleanly.
+ *
+ * Usage in a React component:
+ *   import { getTickets, submitReport, verifyTicket, getAnalytics } from '../services/api';
+ */
 
 import axios from 'axios';
 
