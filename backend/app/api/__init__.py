@@ -1,1 +1,2 @@
-# CivicFlow API endpoints package
+"""CivicFlow API package."""
+from app.api.routes import router
