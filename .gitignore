@@ -22,7 +22,7 @@ out/
 
 # IDEs and editors
 .idea/
-.vscode/
+# .vscode/ (allow .vscode to be committed for shared settings)
 *.suo
 *.ntvs*
 *.njsproj
@@ -51,4 +51,21 @@ ui-debug.log*
 !package-lock.json
 !tsconfig.json
 !jsconfig.json
+!extensions.json
+!settings.json
 firebase-credentials.json
+
+# Flutter SDK Portable Environment
+flutter-sdk/cache
+flutter-sdk/temp
+flutter-sdk/android-sdk/system-images
+flutter-sdk/android-sdk/temp_extract
+
+# Flutter Mobile Project
+frontend-mobile/build/
+frontend-mobile/.dart_tool/
+frontend-mobile/.flutter-plugins
+frontend-mobile/.flutter-plugins-dependencies
+frontend-mobile/.packages
+
+flutter.zip
