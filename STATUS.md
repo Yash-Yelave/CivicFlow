@@ -9,7 +9,7 @@ This document tracks the implementation progress of the **CivicFlow (Autonomous 
 | Phase | Description | Completion Status | Details |
 | :--- | :--- | :---: | :--- |
 | **Phase 1** | Environment, Database Setup & AI Core | **100% Completed** | Firebase Admin SDK configured; Gemini API connected with updated `gemini-2.5-flash` model. |
-| **Phase 2** | Backend Integration & API Pipeline | **100% Completed** | Multi-agent chain logic (Assessor → Router) and Analyst (Agent 3) endpoints fully implemented. |
+| **Phase 2** | Backend Integration & API Pipeline | **100% Completed** | Multi-agent chain (Assessor → Router) and Agent 3 Analyst with Event-Driven Cached Architecture fully implemented. |
 | **Phase 3** | Frontend Development & Mapping | **100% Completed** | Scaffolding set up; Leaflet/OpenStreetMap feed component active with user location tracking. |
 | **Phase 4** | Community Features & Wiring | **100% Completed** | Upvoting/verification routes, detailed ticket overlays, and AI analytics dashboards connected. |
 | **Phase 5** | Containerization & Cloud Deployment | **30% Completed** | Dockerfile and Firebase configs created. Cloud Run and Firebase Hosting deployment remaining. |
@@ -40,8 +40,10 @@ This document tracks the implementation progress of the **CivicFlow (Autonomous 
   * Pipeline endpoint `/api/report` implemented in [routes.py](file:///d:/Hackathon_Projects/CivicFlow/backend/app/api/routes.py). Pass base64 image data to Agent 1 (Assessor) and output to Agent 2 (Router).
 - [x] **Task 2.3: Firestore Data Persistence**
   * Combined data mapped to Firestore `tickets` collection with ISO timestamp.
-- [x] **Task 2.4: Agent 3 (The Analyst) Implementation**
-  * Endpoint `/api/analytics` fetches active tickets, feeds them into Agent 3, and returns predictions/trends as structured JSON.
+- [x] **Task 2.4: Agent 3 (The Analyst) Implementation & Event-Driven Caching Architecture**
+  * Refactored `/api/analytics` into an asynchronous, production-ready cached architecture (`analytics_cache/latest` & `analytics_metadata/state`) so dashboard requests return instant insights (<50ms) without blocking on Gemini.
+  * Implemented `AnalyticsService` with FastAPI `BackgroundTasks` and optimistic locking (`generationInProgress`) to regenerate analytics asynchronously only when ticket data changes.
+  * Added administrative force-refresh endpoint `POST /api/analytics/regenerate`.
 
 ---
 

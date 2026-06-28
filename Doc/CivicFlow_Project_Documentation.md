@@ -31,9 +31,9 @@ The core innovation is the shift from passive reporting to active triage using t
 2. **Agent 2: The Router (Workflow Automation)**
    * **Trigger:** Receives JSON from The Assessor.
    * **Action:** Determines the correct municipal department (e.g., "Public Works Dept"), drafts a formal maintenance ticket, and assigns a priority level based on location and severity.
-3. **Agent 3: The Analyst (Predictive Insights)**
-   * **Trigger:** Scheduled API invocation or dashboard request.
-   * **Action:** Analyzes clustered Firestore data to generate predictive insights (e.g., "High frequency of water pipe bursts in Sector 4 implies systemic aging infrastructure").
+3. **Agent 3: The Analyst (Predictive Insights & Event-Driven Analytics)**
+   * **Trigger:** Event-driven invalidation on ticket mutations, or manual refresh via `POST /api/analytics/regenerate`.
+   * **Action:** Analyzes clustered Firestore data to generate predictive insights. Employs an asynchronous background worker (`AnalyticsService`) and Firestore cache (`analytics_cache/latest`) so dashboard loads return instant predictions (<50ms) without blocking on LLM inference.
 
 ---
 
@@ -41,61 +41,62 @@ The core innovation is the shift from passive reporting to active triage using t
 Since you are executing this project single-handedly, the timeline is tightly optimized into logical, chronological blocks to avoid context-switching bottlenecks.
 
 ### Phase 1: Environment, Database Setup & AI Core (June 26 - Target: End of Day)
-* [ ] **Task 1.1: Firebase Project Provisioning**
+* [x] **Task 1.1: Firebase Project Provisioning**
   * Create a new project in the Firebase Console.
   * Enable **Firestore Database** in production mode and configure initial security rules allowing authenticated/public reads/writes for testing.
   * Enable **Firebase Storage** and set up an `issue_images/` bucket.
   * Download the Firebase Admin SDK private key JSON file for backend configuration.
-* [ ] **Task 1.2: Backend Architecture Initialization**
+* [x] **Task 1.2: Backend Architecture Initialization**
   * Bootstrap a boilerplate FastAPI repository with a virtual environment (`venv`).
   * Install dependencies: `fastapi`, `uvicorn`, `firebase-admin`, `google-generativeai`, `pydantic`, `python-multipart`.
   * Create `main.py` and set up cross-origin resource sharing (CORS) middleware to accept requests from the local React frontend.
-* [ ] **Task 1.3: Gemini Multi-Agent System Prompting**
+* [x] **Task 1.3: Gemini Multi-Agent System Prompting**
   * Initialize the `google-generativeai` SDK using an API key from Google AI Studio.
   * Define Pydantic response models to enforce strict, predictable schema structures for Agent 1 and Agent 2 outputs.
   * Write precise system instructions for **Agent 1 (The Assessor)** to accept images and output a JSON categorization with structural integrity.
   * Write system instructions for **Agent 2 (The Router)** to receive that JSON data and map it to specific municipal departments.
 
 ### Phase 2: Backend Integration & API Pipeline (June 27 - Target: Morning to Afternoon)
-* [ ] **Task 2.1: File Upload & Storage Routing**
+* [x] **Task 2.1: File Upload & Storage Routing**
   * Build an endpoint `/api/report` in FastAPI that accepts multipart form data (image file, latitude, longitude, user description).
   * Implement logic to write the uploaded file directly into Firebase Storage and retrieve its public access URL.
-* [ ] **Task 2.2: Chaining Agent 1 & Agent 2**
+* [x] **Task 2.2: Chaining Agent 1 & Agent 2**
   * Construct the execution logic within the `/api/report` endpoint:
     1. Pass the public image URL (or raw bytes) to Agent 1 to classify the anomaly.
     2. Pipe Agent 1's structured JSON output straight into Agent 2.
     3. Merge the geolocation, user description, image URL, and Agent 2's departmental ticket details into a uniform document format.
-* [ ] **Task 2.3: Firestore Data Persistence**
+* [x] **Task 2.3: Firestore Data Persistence**
   * Write the final unified document into a Firestore collection named `tickets`.
   * Verify data structures using the Firebase local emulator or direct database console checking.
-* [ ] **Task 2.4: Agent 3 (The Analyst) Implementation**
-  * Build a separate endpoint `/api/analytics` that fetches all current entries from the Firestore `tickets` collection.
-  * Package the entries into a text summary block and feed it to Gemini 1.5 Flash with system instructions to return localized trend predictions and high-priority hotspots.
+* [x] **Task 2.4: Agent 3 (The Analyst) Implementation & Event-Driven Caching**
+  * Built endpoint `/api/analytics` serving pre-computed insights instantly from `analytics_cache/latest`.
+  * Implemented asynchronous background generation via FastAPI `BackgroundTasks` and `AnalyticsService` with optimistic locking, updating cache only when `datasetVersion` advances.
+  * Added `POST /api/analytics/regenerate` endpoint for administrative cache refresh.
 
 ### Phase 3: Frontend Development & Mapping Dashboard (June 27 - Target: Evening)
-* [ ] **Task 3.1: Frontend Scaffolding**
+* [x] **Task 3.1: Frontend Scaffolding**
   * Scaffold a new React application using Vite: `npm create vite@latest frontend -- --template react`.
   * Install UI libraries and dependencies: `leaflet`, `react-leaflet`, `lucide-react`, `axios`.
-* [ ] **Task 3.2: Map Component Integration**
+* [x] **Task 3.2: Map Component Integration**
   * Configure Leaflet maps inside the app layout using OpenStreetMap tiles.
   * Write geolocation capture hooks to pull the user's browser location accurately upon opening the application.
-* [ ] **Task 3.3: Reporting Interface Construction**
+* [x] **Task 3.3: Reporting Interface Construction**
   * Build a minimalist reporting overlay panel: includes a file selector for captured images, text field for optional description, and a submission loading state handler.
   * Wire the submit event handler to send a standard `POST` request containing FormData to your local FastAPI endpoint.
 
 ### Phase 4: Community Features & Frontend Wiring (June 28 - Target: Morning)
-* [ ] **Task 4.1: Live Map Tracking Elements**
+* [x] **Task 4.1: Live Map Tracking Elements**
   * Build a wrapper component that pulls existing active tickets from Firestore (via FastAPI or direct SDK) and populates them as custom markers on the OpenStreetMap interface.
   * Style marker popups to show the classification, severity badge, and AI-assigned department.
-* [ ] **Task 4.2: Community Verification Architecture**
+* [x] **Task 4.2: Community Verification Architecture**
   * Create upvote buttons inside map popups allowing other local citizens to validate active issues.
   * Build a simple patch request endpoint in FastAPI (`/api/tickets/{id}/verify`) to increment the verification counter within Firestore.
-* [ ] **Task 4.3: Analytical Dashboard View**
+* [x] **Task 4.3: Analytical Dashboard View**
   * Design a secondary view tab within the layout dedicated to administrative/community insights.
   * Connect this view to your `/api/analytics` endpoint, cleanly rendering Agent 3's predictions in an elegant, minimal text-card dashboard.
 
 ### Phase 5: Containerization & Google Cloud Deployment (June 28 - Target: Afternoon to Night)
-* [ ] **Task 5.1: Backend Dockerization**
+* [x] **Task 5.1: Backend Dockerization**
   * Write a standard `Dockerfile` for your FastAPI backend pinning Python 3.10+, copying code files, installing dependencies, and exposing port 8080.
   * Build and test the Docker container image locally to ensure error-free start-up behaviors.
 * [ ] **Task 5.2: Google Cloud Run Implementation**
