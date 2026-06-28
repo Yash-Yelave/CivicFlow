@@ -2,6 +2,11 @@ param (
     [switch]$SkipDownloads
 )
 
+$ProgressPreference = 'SilentlyContinue'
+
+    [switch]$SkipDownloads
+)
+
 $ErrorActionPreference = "Stop"
 
 $ProjectRoot = (Get-Item .).FullName
