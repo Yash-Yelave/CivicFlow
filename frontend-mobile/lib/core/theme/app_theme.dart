@@ -90,7 +90,7 @@ class AppTheme {
       ),
 
       // ── Card ──────────────────────────────────────────────────────────────
-      cardTheme: const CardThemeData(
+      cardTheme: const CardTheme(
         color: surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -120,10 +120,6 @@ class AppTheme {
         elevation: 0,
         shadowColor: border,
         height: 64,
-        shape: const RoundedRectangleBorder(
-          side: BorderSide(color: border),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
-        ),
       ),
 
       // ── FilledButton ──────────────────────────────────────────────────────
@@ -163,21 +159,21 @@ class AppTheme {
         filled: true,
         fillColor: surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: sp16, vertical: sp12),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: const BorderSide(color: border),
+          borderSide: BorderSide(color: border),
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: const BorderSide(color: border),
+          borderSide: BorderSide(color: border),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: const BorderSide(color: accent, width: 2),
+          borderSide: BorderSide(color: accent, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: const BorderSide(color: error),
+          borderSide: BorderSide(color: error),
         ),
         hintStyle: GoogleFonts.inter(fontSize: 14, color: textTertiary),
         labelStyle: GoogleFonts.inter(fontSize: 14, color: textSecondary),
@@ -194,7 +190,7 @@ class AppTheme {
       ),
 
       // ── Dialog ────────────────────────────────────────────────────────────
-      dialogTheme: const DialogThemeData(
+      dialogTheme: const DialogTheme(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         elevation: 4,
