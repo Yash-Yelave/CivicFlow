@@ -93,6 +93,7 @@ class Agent3Analytics(BaseModel):
     """
     Full structured output from Agent 3 (The Analyst).
     Drives the 'Predictive Insights' dashboard view on the frontend.
+    This is what Gemini writes — it is persisted into analytics_cache/latest.
     """
     summary: str = Field(description="High-level executive summary of the city's infrastructure health.")
     high_risk_clusters: List[RiskCluster] = Field(
@@ -100,6 +101,113 @@ class Agent3Analytics(BaseModel):
     )
     preventative_recommendations: List[PreventativeRecommendation] = Field(
         description="Concrete preventative actions to prevent escalation."
+    )
+
+
+# ---------------------------------------------------------------------------
+# ANALYTICS CACHE — Firestore persistence layer (analytics_cache/latest)
+# Stores the full analytics result plus derived statistics computed in Python.
+# ---------------------------------------------------------------------------
+
+class HeatmapPoint(BaseModel):
+    """A single weighted point for the risk heatmap layer on the frontend map."""
+    lat: float = Field(description="Latitude of the ticket.")
+    lng: float = Field(description="Longitude of the ticket.")
+    weight: float = Field(description="Normalized risk weight (severity / 5).")
+
+
+class AnalyticsCache(BaseModel):
+    """
+    Mirrors the `analytics_cache/latest` Firestore document.
+
+    Contains the complete Agent 3 output merged with deterministic statistics
+    derived from the raw ticket data (no Gemini required for these fields).
+    All new fields are Optional so the system degrades gracefully if an older
+    cache document exists in Firestore without the new fields.
+    """
+    # Provenance / versioning
+    generatedAt: str = Field(description="ISO-8601 timestamp when this cache was written.")
+    generatedForVersion: int = Field(
+        description="The datasetVersion this cache corresponds to."
+    )
+
+    # Agent 3 outputs (mapped from Agent3Analytics)
+    executiveSummary: str = Field(
+        description="High-level executive summary — same as Agent3Analytics.summary."
+    )
+    riskClusters: List[dict] = Field(
+        default_factory=list,
+        description="Serialised RiskCluster list from Agent 3."
+    )
+    recommendations: List[dict] = Field(
+        default_factory=list,
+        description="Serialised PreventativeRecommendation list from Agent 3."
+    )
+
+    # Deterministic derived statistics (computed in Python, no LLM cost)
+    heatmapData: Optional[List[dict]] = Field(
+        default=None,
+        description="[{lat, lng, weight}] for every ticket — drives the map heatmap layer."
+    )
+    departmentStatistics: Optional[dict] = Field(
+        default=None,
+        description="Ticket count keyed by assigned_department."
+    )
+    categoryStatistics: Optional[dict] = Field(
+        default=None,
+        description="Ticket count keyed by issue category."
+    )
+
+
+# ---------------------------------------------------------------------------
+# ANALYTICS METADATA — Firestore state document (analytics_metadata/state)
+# Tracks versioning and staleness for the cache invalidation system.
+# ---------------------------------------------------------------------------
+
+class AnalyticsMetadata(BaseModel):
+    """
+    Mirrors the `analytics_metadata/state` Firestore document.
+
+    datasetVersion    — incremented every time a ticket event changes analytics-relevant data.
+    analyticsVersion  — set equal to datasetVersion after a successful cache write.
+    stale             — True when datasetVersion > analyticsVersion.
+    generationInProgress — optimistic lock flag to prevent concurrent regeneration.
+    """
+    datasetVersion: int = Field(default=0, description="Monotonically increasing ticket mutation counter.")
+    analyticsVersion: int = Field(default=0, description="Version for which the cache was last generated.")
+    stale: bool = Field(default=True, description="True when cached analytics are outdated.")
+    lastAnalyticsRun: Optional[str] = Field(default=None, description="ISO timestamp of last successful run.")
+    latestTicketTimestamp: Optional[str] = Field(default=None, description="ISO timestamp of most-recently mutated ticket.")
+    ticketCount: int = Field(default=0, description="Number of tickets at the time of last metadata update.")
+    generationInProgress: bool = Field(
+        default=False,
+        description="Optimistic lock: True while a background worker is actively generating analytics."
+    )
+
+
+# ---------------------------------------------------------------------------
+# API RESPONSE — GET /api/analytics
+# The public envelope returned to the frontend.
+# The `analytics` dict is backward-compatible with the old Agent3Analytics shape.
+# ---------------------------------------------------------------------------
+
+class AnalyticsResponse(BaseModel):
+    """
+    Full API response for GET /api/analytics.
+
+    cache_status values:
+      "fresh"    — cache is up-to-date (datasetVersion == analyticsVersion)
+      "stale"    — returned old cache; background worker has been triggered
+      "building" — no cache exists yet; worker is running for the first time
+      "error"    — cache is unavailable (worker failed and no prior cache exists)
+    """
+    success: bool
+    cache_status: str = Field(description="fresh | stale | building | error")
+    generated_at: Optional[str] = Field(default=None, description="When the cache was last generated.")
+    ticket_count_analyzed: int = Field(default=0)
+    analytics: Optional[dict] = Field(
+        default=None,
+        description="Full analytics payload — includes all Agent 3 fields plus derived statistics."
     )
 
 
