@@ -94,10 +94,11 @@ civicflow/
 
 ---
 
-## 🧠 AI Multi-Agent Triage Workflow
+# 🧠 AI Multi-Agent Triage Workflow
 Powered by **Google AI Studio (Gemini 2.5 Flash)**:
 1. **Agent 1: The Assessor (Vision AI)** - Examines the image uploaded by the citizen to classify the issue and severity in structured JSON using zero-cost Base64 compression.
 2. **Agent 2: The Router (Workflow Automation)** - Takes the Assessor's JSON and determines the target municipal department, drafting a formal maintenance ticket.
-3. **Agent 3: The Analyst (Predictive Insights & Event-Driven Analytics)** - Scans all Firestore reports to identify patterns and predict hotspots. Refactored into a high-performance event-driven cached architecture with asynchronous background generation (`analytics_cache/latest` & `analytics_metadata/state`), returning instant responses (<50ms) without blocking dashboard loads on LLM inference.
+3. **Agent 3: The Analyst (Predictive Insights & Event-Driven Analytics)** - Scans all Firestore reports to identify patterns and predict hotspots. Refactored into a high‑performance event‑driven cached architecture with asynchronous background generation (`analytics_cache/latest` & `analytics_metadata/state`), returning instant responses (<50ms) without blocking dashboard loads on LLM inference.
+4. **Admin Refresh** – Trigger a cache regeneration via `POST /api/analytics/regenerate` to recompute analytics on demand.
 
 Refer to the [Doc/](file:///d:/Hackathon_Projects/CivicFlow/Doc/) directory for detailed architecture and project definitions.
