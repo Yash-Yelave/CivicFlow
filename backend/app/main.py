@@ -84,19 +84,27 @@ async def root():
     return {
         "status": "healthy",
         "service": "CivicFlow — Autonomous Municipal Triage System",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "agents": {
-            "agent_1": "The Assessor (Vision AI — Gemini 1.5 Flash)",
-            "agent_2": "The Router (Municipal Dispatcher — Gemini 1.5 Flash)",
-            "agent_3": "The Analyst (Predictive Intelligence — Gemini 1.5 Flash)"
+            "agent_1": "The Assessor (Vision AI — Gemini 2.5 Flash)",
+            "agent_2": "The Router (Municipal Dispatcher — Gemini 2.5 Flash)",
+            "agent_3": "The Analyst (Predictive Intelligence — Gemini 2.5 Flash, cached)"
         },
         "endpoints": {
-            "POST /api/report":                   "Submit new infrastructure issue",
-            "GET  /api/tickets":                  "Fetch all active tickets (map feed)",
-            "PATCH /api/tickets/{id}/verify":     "Community upvote a ticket",
-            "GET  /api/analytics":                "Agent 3 predictive dashboard insights"
+            "POST /api/report":                    "Submit new infrastructure issue",
+            "GET  /api/tickets":                   "Fetch all active tickets (map feed)",
+            "PATCH /api/tickets/{id}/verify":      "Community upvote a ticket",
+            "GET  /api/analytics":                 "Read cached Agent 3 analytics (~50ms, non-blocking)",
+            "POST /api/analytics/regenerate":      "Force-invalidate cache and trigger background refresh"
+        },
+        "analytics_architecture": {
+            "cache_collection":    "analytics_cache/latest",
+            "metadata_collection": "analytics_metadata/state",
+            "invalidation":        "Event-driven — triggered automatically on ticket mutations",
+            "worker":              "FastAPI BackgroundTasks — non-blocking, never delays responses"
         }
     }
+
 
 # ---------------------------------------------------------------------------
 # Local Development Entry Point
