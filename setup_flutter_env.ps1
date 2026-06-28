@@ -2,12 +2,8 @@ param (
     [switch]$SkipDownloads
 )
 
-$ProgressPreference = 'SilentlyContinue'
-
-    [switch]$SkipDownloads
-)
-
 $ErrorActionPreference = "Stop"
+$ProgressPreference = 'SilentlyContinue'
 
 $ProjectRoot = (Get-Item .).FullName
 $FlutterSdkDir = Join-Path $ProjectRoot "flutter-sdk"
@@ -27,12 +23,16 @@ New-Item -ItemType Directory -Force -Path (Join-Path $AndroidSdkDir "cache") | O
 New-Item -ItemType Directory -Force -Path (Join-Path $AndroidSdkDir "temp") | Out-Null
 
 if (-not $SkipDownloads) {
-    Write-Host "Downloading Flutter SDK (this may take a while)..."
+    Write-Host "Downloading Flutter SDK (this may take a while, but it will be much faster now)..."
     $FlutterZipUrl = "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.22.2-stable.zip"
     $FlutterZipPath = Join-Path $FlutterSdkDir "flutter.zip"
-    if (-not (Test-Path $FlutterZipPath)) {
-        Invoke-WebRequest -Uri $FlutterZipUrl -OutFile $FlutterZipPath
+    
+    # Delete the partial file if it exists
+    if (Test-Path $FlutterZipPath) {
+        Remove-Item -Force $FlutterZipPath
     }
+    
+    Invoke-WebRequest -Uri $FlutterZipUrl -OutFile $FlutterZipPath
 
     Write-Host "Extracting Flutter SDK..."
     if (-not (Test-Path $FlutterDir)) {
