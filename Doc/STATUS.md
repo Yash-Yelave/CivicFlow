@@ -12,7 +12,7 @@ This document tracks the implementation progress of the **CivicFlow (Autonomous 
 | **Phase 2** | Backend Integration & API Pipeline | **100% Completed** | Multi-agent chain (Assessor → Router) and Agent 3 Analyst with Event-Driven Cached Architecture fully implemented. |
 | **Phase 3** | Frontend Development & Mapping | **100% Completed** | Scaffolding set up; Leaflet/OpenStreetMap feed component active with user location tracking. |
 | **Phase 4** | Community Features & Wiring | **100% Completed** | Upvoting/verification routes, detailed ticket overlays, and AI analytics dashboards connected. |
-| **Phase 5** | Containerization & Cloud Deployment | **30% Completed** | Dockerfile and Firebase configs created. Cloud Run and Firebase Hosting deployment remaining. |
+| **Phase 5** | Containerization & Cloud Deployment | **30% Completed** | Dockerfile and Firebase configs created. Cloud Run and Cloudflare Pages deployment remaining. |
 | **Phase 6** | Polish & Documentation | **50% Completed** | Comprehensive documentation refactor completed. Final integration testing and hackathon submission remaining. |
 
 ---
@@ -73,8 +73,8 @@ This document tracks the implementation progress of the **CivicFlow (Autonomous 
   * Standard [Dockerfile](file:///d:/Hackathon_Projects/CivicFlow/backend/Dockerfile) ready inside backend folder.
 - [ ] **Task 5.2: Google Cloud Run Implementation**
   * Build and deploy container image to GCP Artifact Registry and Cloud Run.
-- [ ] **Task 5.3: Frontend Deployment to Firebase Hosting**
-  * Build static files (`npm run build`) and execute `firebase deploy` using the Hosting target.
+- [ ] **Task 5.3: Frontend Deployment to Cloudflare Pages**
+  * Build static files (`npm run build`) and deploy using Wrangler CLI or GitHub integration.
 
 ---
 

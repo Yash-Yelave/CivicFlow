@@ -36,7 +36,7 @@ flowchart TD
 - **Styling**: Tailwind CSS
 - **Mapping**: Leaflet.js / OpenStreetMap
 - **State Management**: React Hooks + Axios for API communication.
-- **Hosting**: Firebase Hosting (Static Edge CDN).
+- **Hosting**: Cloudflare Pages (Static Edge CDN).
 
 ### Backend Architecture
 - **Framework**: FastAPI (Python 3.10+)
@@ -134,6 +134,8 @@ As CivicFlow expands, a native mobile application is planned:
 
 ## 7. Security & Scalability Overview
 
-- **CORS**: FastAPI strictly enforces Cross-Origin Resource Sharing, allowing requests only from the deployed Firebase Hosting domain (and localhost for dev).
+- **Cloudflare Pages**: Serves the Vite React frontend via a global CDN.
+- **Google Cloud Run**: Runs the FastAPI backend in a serverless Docker container, auto-scaling to zero when idle to minimize costs.
+- **CORS**: FastAPI strictly enforces Cross-Origin Resource Sharing, allowing requests only from the deployed Cloudflare Pages domain (and localhost for dev).
 - **Stateless Backend**: The FastAPI servers store no local state, allowing Cloud Run to instantly spin up hundreds of instances safely.
 - **Token Efficiency**: By caching Agent 3 analytics, Gemini API costs are reduced by over 95%, as inferences only occur when ticket data physically changes, rather than on every page load.

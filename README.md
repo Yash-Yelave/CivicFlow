@@ -41,7 +41,7 @@ Traditional municipal reporting systems rely on tedious drop-down menus and manu
 - **Backend**: FastAPI (Python)
 - **AI Engine**: Google AI Studio (Gemini 2.5 Flash)
 - **Database**: Firebase Firestore (NoSQL)
-- **Deployment**: Google Cloud Run, Firebase Hosting, Docker
+- **Deployment**: Google Cloud Run, Cloudflare Pages, Docker
 
 ---
 
@@ -128,7 +128,7 @@ A mobile application is currently in active development under the `frontend-mobi
 
 ## ☁️ Deployment
 - **Backend (Google Cloud Run)**: Built via the included `Dockerfile` and deployed as a serverless container.
-- **Frontend (Firebase Hosting)**: Built via `npm run build` and deployed using the Firebase CLI.
+- **Frontend (Cloudflare Pages)**: Built via `npm run build` and deployed using the Cloudflare Pages CI/CD pipeline or Wrangler CLI.
 
 ---
 
