@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/ticket_model.dart';
 import '../../providers/ticket_provider.dart';
-import '../../repositories/ticket_repository.dart';
 import '../../providers/data_providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/status_chip.dart';
@@ -555,11 +554,11 @@ class _TriageStep extends StatelessWidget {
           child: isDone
               ? const Icon(Icons.check_circle_outline, size: 10, color: Colors.white)
               : isActive
-                  ? Center(
+                  ? const Center(
                       child: Container(
                         width: 6,
                         height: 6,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
                       ),
                     )
                   : null,

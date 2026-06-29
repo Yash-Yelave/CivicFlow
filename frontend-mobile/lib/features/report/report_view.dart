@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/ticket_provider.dart';
-import '../../repositories/ticket_repository.dart';
 import '../../providers/data_providers.dart';
+import '../../repositories/report_repository.dart';
 import '../../core/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 
@@ -73,13 +73,13 @@ class _ReportViewState extends ConsumerState<ReportView> {
     }
 
     try {
-      final repository = ref.read(ticketRepositoryProvider);
+      final repository = ref.read(reportRepositoryProvider);
       final center = locationAsync.value!;
       final newTicket = await repository.submitReport(
-        _imageFile!,
-        center.latitude,
-        center.longitude,
-        _description,
+        filePath: _imageFile!.path,
+        latitude: center.latitude,
+        longitude: center.longitude,
+        description: _description,
       );
 
       ref.read(ticketsProvider.notifier).addTicket(newTicket);
@@ -118,7 +118,7 @@ class _ReportViewState extends ConsumerState<ReportView> {
               'Report Issue',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
             ),
-            Text(
+            const Text(
               'Powered by Gemini AI Multi-Agent System',
               style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontWeight: FontWeight.w400),
             ),
@@ -133,10 +133,10 @@ class _ReportViewState extends ConsumerState<ReportView> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
+            SizedBox(
               width: 64,
               height: 64,
               child: CircularProgressIndicator(strokeWidth: 4, color: Color(0xFF6366F1)),

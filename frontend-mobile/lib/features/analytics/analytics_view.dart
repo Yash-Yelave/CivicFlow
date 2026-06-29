@@ -103,7 +103,7 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                   trend: 'Live from Firestore',
                 ),
                 const SizedBox(height: 12),
-                _MetricCard(
+                const _MetricCard(
                   label: 'Autonomous Triage Success Rate',
                   value: '98.4%',
                   icon: Icons.check_circle_outline,
@@ -111,7 +111,7 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                   trend: 'Gemini Flash',
                 ),
                 const SizedBox(height: 12),
-                _MetricCard(
+                const _MetricCard(
                   label: 'Average Routing Time',
                   value: '< 2s',
                   icon: Icons.bolt,
@@ -209,10 +209,10 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                   )
                 else if (analyticsAsync.hasValue && analyticsAsync.value != null) ...[
                   // Executive Summary
-                  if (analyticsAsync.value!.analytics.summary.isNotEmpty)
+                  if (analyticsAsync.value!.analytics!.executiveSummary.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(20),
-                      margin: const EdgeInsets.bottom(24),
+                      margin: const EdgeInsets.only(bottom: 24),
                       decoration: BoxDecoration(
                         color: AppTheme.surface,
                         border: Border.all(color: AppTheme.border),
@@ -232,7 +232,7 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            analyticsAsync.value!.analytics.summary,
+                            analyticsAsync.value!.analytics!.executiveSummary,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: AppTheme.textPrimary,
                                   height: 1.5,
@@ -243,8 +243,8 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                     ),
                   
                   // High Risk Clusters
-                  if (analyticsAsync.value!.analytics.highRiskClusters.isNotEmpty)
-                    ...analyticsAsync.value!.analytics.highRiskClusters.map((cluster) {
+                  if (analyticsAsync.value!.analytics!.riskClusters.isNotEmpty)
+                    ...analyticsAsync.value!.analytics!.riskClusters.map((cluster) {
                       return PredictiveCard(
                         cluster: {
                           'title': '${cluster.issueType} — ${cluster.sector}',
@@ -255,7 +255,7 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                     }),
                   
                   // Preventative Recommendations
-                  if (analyticsAsync.value!.analytics.preventativeRecommendations.isNotEmpty) ...[
+                  if (analyticsAsync.value!.analytics!.recommendations.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     const Text(
                       'Preventative Recommendations',
@@ -266,7 +266,7 @@ class _AnalyticsViewState extends ConsumerState<AnalyticsView> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...analyticsAsync.value!.analytics.preventativeRecommendations.map((rec) {
+                    ...analyticsAsync.value!.analytics!.recommendations.map((rec) {
                       final isHigh = rec.urgency == 'HIGH' || rec.urgency == 'CRITICAL';
                       final isMedium = rec.urgency == 'MEDIUM';
                       

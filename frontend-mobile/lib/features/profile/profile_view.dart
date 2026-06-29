@@ -113,9 +113,9 @@ class ProfileView extends StatelessWidget {
                 _buildListTile(
                   icon: Icons.cloud_done_outlined,
                   title: 'Backend Status',
-                  trailing: Row(
+                  trailing: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.circle, size: 10, color: Color(0xFF10B981)),
                       SizedBox(width: 6),
                       Text('Online', style: TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 14)),

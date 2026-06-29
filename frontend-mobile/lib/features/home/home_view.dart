@@ -48,12 +48,12 @@ class HomeView extends ConsumerWidget {
                     letterSpacing: -0.5,
                   ),
                 ),
-                Text(
+                const Text(
                   'AUTONOMOUS TRIAGE',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF94A3B8), // slate-400
+                    color: Color(0xFF94A3B8), // slate-400
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -66,11 +66,11 @@ class HomeView extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: const Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
