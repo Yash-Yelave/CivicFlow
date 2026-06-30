@@ -83,9 +83,19 @@ class AnalyticsService:
         metadata = firebase_service.get_analytics_metadata()
 
         if metadata is None:
-            # First boot — no tickets have been created yet
-            logger.info("ℹ️  No analytics metadata found. Nothing to generate yet.")
-            return
+            logger.info("ℹ️  No analytics metadata found. Checking if there are existing tickets...")
+            tickets = firebase_service.get_all_tickets()
+            ticket_count = len(tickets)
+            if ticket_count > 0:
+                logger.info(f"📊 Found {ticket_count} existing tickets on first boot. Initializing metadata...")
+                now_iso = datetime.now(timezone.utc).isoformat()
+                firebase_service.mark_analytics_stale(ticket_timestamp=now_iso, ticket_count=ticket_count)
+                metadata = firebase_service.get_analytics_metadata()
+            else:
+                logger.info("ℹ️  No tickets found. Writing empty analytics cache.")
+                self._write_empty_cache(dataset_version=0, generation_start=datetime.now(timezone.utc))
+                self._finalize(dataset_version=0, generation_start=datetime.now(timezone.utc))
+                return
 
         dataset_version   = metadata.get("datasetVersion", 0)
         analytics_version = metadata.get("analyticsVersion", 0)
