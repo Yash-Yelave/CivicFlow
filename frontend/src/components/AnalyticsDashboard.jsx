@@ -16,6 +16,7 @@ const item = {
 
 const AnalyticsDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
+  const [cacheStatus, setCacheStatus] = useState(null);
   const [ticketCount, setTicketCount] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,6 +31,7 @@ const AnalyticsDashboard = () => {
         getTickets(),
       ]);
       setAnalytics(analyticsResponse.analytics);
+      setCacheStatus(analyticsResponse.cache_status);
       setTicketCount(ticketsResponse.count);
     } catch (err) {
       setError(err.message || 'Failed to load analytics data.');
@@ -120,7 +122,7 @@ const AnalyticsDashboard = () => {
         </div>
 
         {/* Loading Skeleton */}
-        {isLoading && (
+        {(isLoading || cacheStatus === 'building') && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <Loader2 size={36} className="text-indigo-400 animate-spin" />
             <p className="text-sm text-slate-500 font-medium">Agent 3 is analyzing infrastructure patterns...</p>
