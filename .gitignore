@@ -56,10 +56,7 @@ ui-debug.log*
 firebase-credentials.json
 
 # Flutter SDK Portable Environment
-flutter-sdk/cache
-flutter-sdk/temp
-flutter-sdk/android-sdk/system-images
-flutter-sdk/android-sdk/temp_extract
+flutter-sdk/
 
 # Flutter Mobile Project
 frontend-mobile/build/
